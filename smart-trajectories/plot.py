@@ -1,106 +1,21 @@
-import pandas as pd
-import geopandas as gpd
-import movingpandas as mpd
 import matplotlib.pyplot as plt
-import ast
-import os
-from datetime import datetime
 from shapely.geometry import Point
-from shapely.geometry import LineString
 from shapely.ops import nearest_points
 from PIL import Image
+from shapely.geometry import LineString
 
-# Reads the trajectories from a text file and write the processed data into a CSV file 
-def txt_to_csv(txt_filename, csv_filename):
-    if not os.path.exists(txt_filename):
-        print("Text file not found.")
-        return
-    
-    with open(txt_filename, 'r') as f:
-        lines = f.readlines()
-
-    df_list = []
-    for line in lines:
-        parts = line.strip().split(', ')
-
-        identifier = float(parts[0])
-        category = float(parts[1])
-        start_time = float(parts[2])
-        end_time = float(parts[3])
-
-        # Points array
-        points_string = ', '.join(parts[4:])
-        points = ast.literal_eval(points_string)
-
-        time_interval = (end_time - start_time) / len(points)
-
-        for i, point in enumerate(points):
-            timestamp = start_time + i * time_interval
-            x, y = point
-            df_list.append([identifier, category, timestamp, x, y])
-
-    df = pd.DataFrame(df_list, columns=['identifier', 'category', 'timestamp', 'x', 'y'])
-    df.to_csv(csv_filename, index=False)
-
-def txt_to_csv_datetime(txt_filename, csv_filename):
-    if not os.path.exists(txt_filename):
-        print("Text file not found.")
-        return
-    
-    with open(txt_filename, 'r') as f:
-        lines = f.readlines()
-
-    df_list = []
-    for line in lines:
-        parts = line.strip().split(', ')
-
-        identifier = int(parts[0])
-        category = int(parts[1])
-        start_time = datetime.strptime(parts[2], "%Y-%m-%d %H:%M:%S.%f")
-        end_time = datetime.strptime(parts[3], "%Y-%m-%d %H:%M:%S.%f")
-
-        # Points array
-        points_string = ', '.join(parts[4:])
-        points = ast.literal_eval(points_string)
-
-        total_seconds = (end_time - start_time).total_seconds()
-        time_interval = total_seconds / len(points)
-
-        for i, point in enumerate(points):
-            timestamp = (start_time + pd.Timedelta(seconds=i * time_interval)).timestamp()
-            x, y = point
-            df_list.append([identifier, category, timestamp, x, y])
-
-    df = pd.DataFrame(df_list, columns=['identifier', 'category', 'timestamp', 'x', 'y'])
-    df.to_csv(csv_filename, index=False)
-
-# Transforms a CSV into a Trajectory Collection
-def generate_trajectory_collection(filename):
-    df = pd.read_csv(filename)
-
-    # Transforms the column "Timestamp" into a datetime
-    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s')
-
-    # Converts "x" and "y" into a Point column
-    df['geometry'] = df.apply(lambda row: Point(row.x, row.y), axis=1)
-
-    # Removes "x" and "y"
-    df = df.drop(['x', 'y'], axis=1)
-
-    # Creates a GeoDataFrame
-    gdf = gpd.GeoDataFrame(df, geometry='geometry')
-    gdf.crs = "EPSG:4326"
-
-    # Defines timestamp as the index
-    gdf.set_index('timestamp', inplace=True)
-
-    # Creates an object objeto TrajectoryCollection
-    traj_collection = mpd.TrajectoryCollection(gdf, 'identifier')
-
-    return traj_collection
+# Category colors
+category_colors_template = {
+    0.0: 'darkorange',
+    1.0: 'blue',
+    2.0: 'orange',
+    3.0: 'darkgreen',
+    4.0: 'olive',
+    5.0: 'black',
+}
 
 # Plot all trajectories
-def plot_trajectories(traj_collection):
+def plot_trajectories(traj_collection, xsize, ysize, xlim1, xlim2, ylim1, ylim2, linewidth=2, alpha=0.35):
     plt.figure(figsize=(xsize, ysize))
     
     for traj in traj_collection:
@@ -118,7 +33,7 @@ def plot_trajectories(traj_collection):
     plt.show()
 
 # Plots by category
-def plot_trajectories_categorized(traj_collection):
+def plot_trajectories_categorized(traj_collection, xsize, ysize, xlim1, xlim2, ylim1, ylim2, linewidth=2, alpha=0.35, category_colors=category_colors_template):
     plt.figure(figsize=(xsize, ysize))
 
     for traj in traj_collection:
@@ -143,7 +58,7 @@ def plot_trajectories_categorized(traj_collection):
     plt.show()
 
 # Plots one category selected
-def plot_trajectories_one_category(traj_collection, category):
+def plot_trajectories_one_category(traj_collection, category, xsize, ysize, xlim1, xlim2, ylim1, ylim2, linewidth=2, alpha=0.35, category_colors=category_colors_template):
     plt.figure(figsize=(xsize, ysize))
 
     if category not in category_colors:
@@ -172,7 +87,7 @@ def plot_trajectories_one_category(traj_collection, category):
     plt.show()
 
 # Plot with an image of the location
-def plot_trajectories_with_background(traj_collection, background_image_path):
+def plot_trajectories_with_background(traj_collection, background_image_path, xsize, ysize, xlim1, xlim2, ylim1, ylim2, min_x, max_x, min_y, max_y, category_colors=category_colors_template, linewidth=2, alpha=0.35):
     img = Image.open(background_image_path)
 
     plt.figure(figsize=(xsize, ysize))
@@ -203,7 +118,7 @@ def plot_trajectories_with_background(traj_collection, background_image_path):
     plt.show()
 
 # Plot one category with background
-def plot_trajectories_one_category_background(traj_collection, category, background_image_path):
+def plot_trajectories_one_category_background(traj_collection, category, background_image_path,  xsize, ysize, xlim1, xlim2, ylim1, ylim2, min_x, max_x, min_y, max_y, category_colors=category_colors_template, linewidth=2, alpha=0.35):
     img = Image.open(background_image_path)
 
     plt.figure(figsize=(xsize, ysize))
@@ -231,7 +146,7 @@ def plot_trajectories_one_category_background(traj_collection, category, backgro
     plt.title('Trajectories')
     plt.show()
 
-def plot_trajectories_with_limits(traj_collection, category, background_image_path):
+def plot_trajectories_with_limits(traj_collection, category, background_image_path, reference_line, xsize, ysize, xlim1, xlim2, ylim1, ylim2, min_x, max_x, min_y, max_y, category_colors=category_colors_template, linewidth=2, alpha=0.35):
     img = Image.open(background_image_path)
 
     plt.figure(figsize=(xsize, ysize))
@@ -294,7 +209,7 @@ def plot_trajectories_with_limits(traj_collection, category, background_image_pa
     plt.title('Trajectories')
     plt.show()
 
-def plot_trajectories_with_start_finish(traj_collection, category, background_image_path):
+def plot_trajectories_with_start_finish(traj_collection, category, background_image_path, arrival_line, departure_line, xsize, ysize, xlim1, xlim2, ylim1, ylim2, min_x, max_x, min_y, max_y, category_colors=category_colors_template, linewidth=2, alpha=0.35):
     img = Image.open(background_image_path)
 
     plt.figure(figsize=(xsize, ysize))
@@ -394,146 +309,3 @@ def plot_trajectories_with_start_finish(traj_collection, category, background_im
     plt.title('Trajectories')
     plt.show()
 
-
-# Category colors
-category_colors = {
-    0.0: 'darkorange',
-    1.0: 'blue',
-    2.0: 'orange',
-    3.0: 'darkgreen',
-    4.0: 'olive',
-    5.0: 'black',
-}
-
-
-
-
-# RUNNING 3
-xlim1 = 50
-xlim2 = 1800
-ylim1 = 900
-ylim2 = 0
-xsize = 16
-ysize = 8
-min_x = 50
-max_x = 1800
-min_y = 0
-max_y = 990
-
-linewidth = 2
-alpha = 0.35
-
-# Loading data
-
-txt_to_csv_datetime('assets/trail_points_data_2.txt', 'assets/trail_points_data_2.csv')
-
-traj_collection = generate_trajectory_collection('assets/trail_points_data_2.csv')
-
-
-
-# Simple plots
-
-plot_trajectories_categorized(traj_collection)
-
-plot_trajectories_with_background(traj_collection, './assets/background_2.jpg')
-
-linewidth = 3
-alpha = 0.7
-
-plot_trajectories_one_category_background(traj_collection, 0.0, './assets/background_2.jpg')
-
-
-
-# USING LIMITS
-
-# Test 1
-
-reference_y = 200
-reference_x = 400
-
-reference_line = LineString([(min_x, reference_y), (max_x, reference_y)])
-
-plot_trajectories_with_limits(traj_collection, 1.0, './assets/background_2.jpg')
-
-
-# Test 2
-
-reference_y = 200
-reference_x = 400
-
-reference_line = LineString([(0, 500), (1000, 900)])
-
-plot_trajectories_with_limits(traj_collection, 2.0, './assets/background_2.jpg')
-
-
-# Test 3
-
-reference_line = LineString([(0, 500), (1000, 900)])
-
-plot_trajectories_with_limits(traj_collection, 3.0, './assets/background_2.jpg')
-
-
-# Test 4
-
-reference_line = LineString([(0, 500), (1000, 900)])
-
-plot_trajectories_with_limits(traj_collection, 5.0, './assets/background_2.jpg')
-
-
-# Test 5 - Pedestrians
-
-reference_line = LineString([(400, 0), (1000, 900)])
-
-plot_trajectories_with_limits(traj_collection, 0.0, './assets/background_2.jpg')
-
-
-# USING TWO REFERENCE LINES
-
-departure_line = LineString([(min_x, 100), (max_x, 100)])
-arrival_line = LineString([(min_x, 500), (max_x, 500)])
-
-plot_trajectories_with_start_finish(traj_collection, 1.0, './assets/background_2.jpg')
-
-departure_line = LineString([(min_x, 150), (max_x, 150)])
-arrival_line = LineString([(min_x, 300), (max_x, 300)])
-
-plot_trajectories_with_start_finish(traj_collection, 2.0, './assets/background_2.jpg')
-plot_trajectories_with_start_finish(traj_collection, 3.0, './assets/background_2.jpg')
-
-
-# Testing shorter paths
-
-departure_line = LineString([(min_x, 100), (620, 100)])
-arrival_line = LineString([(min_x, 500), (1000, 500)])
-
-plot_trajectories_with_start_finish(traj_collection, 1.0, './assets/background_2.jpg')
-plot_trajectories_with_start_finish(traj_collection, 2.0, './assets/background_2.jpg')
-plot_trajectories_with_start_finish(traj_collection, 3.0, './assets/background_2.jpg')
-plot_trajectories_with_start_finish(traj_collection, 4.0, './assets/background_2.jpg')
-plot_trajectories_with_start_finish(traj_collection, 5.0, './assets/background_2.jpg')
-
-# Curious case
-
-arrival_line = LineString([(min_x, 500), (max_x, 500)])
-plot_trajectories_with_start_finish(traj_collection, 1.0, './assets/background_2.jpg')
-plot_trajectories_with_start_finish(traj_collection, 2.0, './assets/background_2.jpg')
-plot_trajectories_with_start_finish(traj_collection, 3.0, './assets/background_2.jpg')
-plot_trajectories_with_start_finish(traj_collection, 4.0, './assets/background_2.jpg')
-plot_trajectories_with_start_finish(traj_collection, 5.0, './assets/background_2.jpg')
-
-
-# Testing shorter paths 2
-
-arrival_line = LineString([(550, 100), (max_x, 100)])
-departure_line = LineString([(1000, 500), (max_x, 500)])
-
-plot_trajectories_with_start_finish(traj_collection, 1.0, './assets/background_2.jpg')
-plot_trajectories_with_start_finish(traj_collection, 2.0, './assets/background_2.jpg')
-plot_trajectories_with_start_finish(traj_collection, 3.0, './assets/background_2.jpg')
-plot_trajectories_with_start_finish(traj_collection, 4.0, './assets/background_2.jpg')
-plot_trajectories_with_start_finish(traj_collection, 5.0, './assets/background_2.jpg')
-
-# Curious case
-
-departure_line = LineString([(min_x, 500), (max_x, 500)])
-plot_trajectories_with_start_finish(traj_collection, 5.0, './assets/background_2.jpg')
