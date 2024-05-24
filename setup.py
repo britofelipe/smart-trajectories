@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='smart-trajectories',
-    version='0.1.18',  # Atualize para uma nova versão
+    version='0.1.19',  # Atualize para uma nova versão
     author='Felipe Brito',
     author_email='arrudabritofelipe@gmail.com',
     description='Smart Trajectories for Python',
@@ -34,7 +34,7 @@ setup(
         'pyproj==3.6.1',
         'python-dateutil==2.8.2',
         'pytz==2023.4',
-        'Rtree==1.2.0',
+        # 'Rtree==1.2.0',
         'shapely==2.0.4',
         'six==1.16.0',
         'tzdata==2024.1',
