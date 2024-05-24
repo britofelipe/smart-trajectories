@@ -19,7 +19,7 @@ setup(
         'contourpy>=1.2.0',
         'cycler==0.12.1',
         'fiona>=1.9.0',
-        'fonttools==4.49.0',
+        'fonttools>=4.48.0',
         'geographiclib==2.0',
         'geopandas==0.14.3',
         'geopy==2.4.1',
