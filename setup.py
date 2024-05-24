@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='smart-trajectories',
-    version='0.1.8',
+    version='0.1.9',
     author='Felipe Brito',
     author_email='arrudabritofelipe@gmail.com',
     description='Smart Trajectories for Python',
@@ -11,7 +11,7 @@ setup(
     url='https://github.com/britofelipe/smart-trajectories',
     packages=find_packages(),
     install_requires=[
-         'attrs==23.2.0',
+        'attrs==23.2.0',
         'certifi==2024.2.2',
         'click==8.1.7',
         'click-plugins==1.1.1',
