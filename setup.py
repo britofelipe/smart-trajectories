@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='smart-trajectories',
-    version='0.1.10',
+    version='0.1.11',
     author='Felipe Brito',
     author_email='arrudabritofelipe@gmail.com',
     description='Smart Trajectories for Python',
@@ -25,7 +25,7 @@ setup(
         'geopy>=2.3.0',
         'kiwisolver>=1.4.0',
         'matplotlib>=3.7.0',
-        'movingpandas>=0.15.0',
+        'movingpandas>=0.16.0',
         'numpy>=1.24.0',
         'packaging>=21.0',
         'pandas>=1.5.0',
