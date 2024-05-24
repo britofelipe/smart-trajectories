@@ -16,7 +16,7 @@ setup(
         'click==8.1.7',
         'click-plugins==1.1.1',
         'cligj==0.7.2',
-        'contourpy==1.2.0',
+        'contourpy>=1.2.0',
         'cycler==0.12.1',
         'fiona==1.9.5',
         'fonttools==4.49.0',
