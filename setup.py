@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='smart-trajectories',
-    version='0.1.2',
+    version='0.1.3',
     author='Felipe Brito',
     author_email='arrudabritofelipe@gmail.com',
     description='Smart Trajectories for Python',
@@ -18,7 +18,7 @@ setup(
         'cligj==0.7.2',
         'contourpy>=1.2.0',
         'cycler==0.12.1',
-        'fiona==1.9.5',
+        'fiona>=1.9.0',
         'fonttools==4.49.0',
         'geographiclib==2.0',
         'geopandas==0.14.3',
