@@ -1,5 +1,5 @@
 import pandas as pd
-# import movingpandas as mpd
+import movingpandas as mpd
 import geopandas as gpd
 from shapely.geometry import Point
 
