@@ -1,5 +1,5 @@
 import pandas as pd
-import movingpandas as mpd
+import movingpandas
 import geopandas as gpd
 from shapely.geometry import Point
 
@@ -24,6 +24,6 @@ def generate_trajectory_collection(filename):
     gdf.set_index('timestamp', inplace=True)
 
     # Creates an object objeto TrajectoryCollection
-    traj_collection = mpd.TrajectoryCollection(gdf, 'identifier')
+    traj_collection = movingpandas.TrajectoryCollection(gdf, 'identifier')
 
     return traj_collection
