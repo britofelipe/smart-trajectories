@@ -40,3 +40,13 @@
    Instale a biblioteca usando o comando:  
    ```bash
    python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps smart-trajectories
+
+Importe as funções necessárias em seu script Python. Exemplo:
+
+```
+from smart_trajectories.io import txt_to_csv
+from smart_trajectories.plotting import plot_trajectories_with_background
+```
+
+Use as funções para converter dados, gerar coleções de trajetórias e plotar os resultados.
+
